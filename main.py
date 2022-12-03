@@ -27,16 +27,21 @@ def parse_args(args=None):
 
 def main(args):
     print(args)
+    # davice and transform
+    data_transform = transforms.Compose([
+        transforms.Resize((args.image_width, args.image_height)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # Model
     model = torch.hub.load('facebookresearch/swav:main', args.model).to(device)
     model.eval()
     if not args.eval_only:
         # update the images features
-        update_feature(args=args,model=model,device=device)
-    search_image(args,model=model,device=device)
-
-
+        update_feature(args=args,model=model,device=device,data_transform=data_transform)
+    result = search_image(args,model=model,device=device,data_transform=data_transform)
+    
 
 if __name__ == '__main__':
     main(parse_args())
